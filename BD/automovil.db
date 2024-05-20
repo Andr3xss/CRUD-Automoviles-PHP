@@ -1,0 +1,6 @@
+CREATE TABLE Automovil (
+    placa VARCHAR(20) PRIMARY KEY,
+    color VARCHAR(20),
+    marca VARCHAR(20)
+    );
+    
