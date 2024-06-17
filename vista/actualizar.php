@@ -1,55 +1,76 @@
 <?php
 include("header.php");
-
+include("../modelo/db.php");
 
 if (isset($_GET['placa'])) {
-    
     $placa = $_GET['placa'];
 
-    echo "<h2>Editar Automóvil con Placa: $placa</h2>";
+    $database = new Database();
+    $db = $database->getConection();
 
-    
-    ?>
-    <link rel="stylesheet" href="../estilos/registrar.css">
+    // Obtener datos del automóvil actual
+    $query_auto = $db->prepare("SELECT color, marca FROM automovil WHERE placa = :placa");
+    $query_auto->bindParam(':placa', $placa, PDO::PARAM_STR);
+    $query_auto->execute();
+    $auto = $query_auto->fetch(PDO::FETCH_ASSOC);
 
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card mt-5">
-                    <div class="card-body">
-                        <h2 class="card-title text-center mb-4">Editar Automóvil</h2>
-                        <form action="../controlador/update.php" method="post">
-                            <div class="mb-3">
-                                <label for="placa" class="form-label">Placa</label>
-                                <!-- Mostrar la placa como campo de solo lectura -->
-                                <input type="text" class="form-control" id="placa" name="placa" value="<?php echo $placa; ?>" readonly>
-                            </div>
-                            <div class="mb-3">
-                                <label for="color" class="form-label">Color</label>
-                                <!-- Campo de entrada para el color -->
-                                <input type="text" class="form-control" id="color" name="color" placeholder="Ingrese el color" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="marca" class="form-label">Marca</label>
-                                <!-- Campo de entrada para la marca -->
-                                <input type="text" class="form-control" id="marca" name="marca" placeholder="Ingrese la marca" required>
-                            </div>
-                            <input type="submit" class="btn btn-primary" value="Actualizar">
-                        </form>
-                    </div>
+    if ($auto) {
+        // Obtener colores
+        $colores_query = $db->query("SELECT nombre FROM colores");
+        $colores = $colores_query->fetchAll(PDO::FETCH_ASSOC);
+
+        // Obtener modelos
+        $modelos_query = $db->query("SELECT nombre FROM modelos");
+        $modelos = $modelos_query->fetchAll(PDO::FETCH_ASSOC);
+?>
+
+<link rel="stylesheet" href="../estilos/registrar.css">
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mt-5">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Editar Automóvil</h2>
+                    <form action="../controlador/update.php" method="post">
+                        <div class="mb-3">
+                            <label for="placa" class="form-label">Placa</label>
+                            <input type="text" class="form-control" id="placa" name="placa" value="<?php echo $placa; ?>" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="color" class="form-label">Color</label>
+                            <select class="form-control" id="color" name="color" required>
+                                <?php foreach ($colores as $color): ?>
+                                    <option value="<?php echo $color['nombre']; ?>" <?php echo $color['nombre'] == $auto['color'] ? 'selected' : ''; ?>><?php echo $color['nombre']; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="marca" class="form-label">Marca</label>
+                            <select class="form-control" id="marca" name="marca" required>
+                                <?php foreach ($modelos as $modelo): ?>
+                                    <option value="<?php echo $modelo['nombre']; ?>" <?php echo $modelo['nombre'] == $auto['marca'] ? 'selected' : ''; ?>><?php echo $modelo['nombre']; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <input type="submit" class="btn btn-primary" value="Actualizar">
+                    </form>
                 </div>
             </div>
-            <div class="col-md-6 d-none d-md-block">
-                <img src="https://mir-s3-cdn-cf.behance.net/project_modules/disp/8ac5ee97541535.5ec75003e8c62.gif" alt="Imagen" class="img-fluid">
-            </div>
+        </div>
+        <div class="col-md-6 d-none d-md-block">
+            <img src="https://mir-s3-cdn-cf.behance.net/project_modules/disp/8ac5ee97541535.5ec75003e8c62.gif" alt="Imagen" class="img-fluid">
         </div>
     </div>
-    <?php
+</div>
+
+<?php
+    } else {
+        echo "Error: No se encontró el automóvil con la placa especificada.";
+    }
 } else {
-    // Si no se recibió la placa, mostrar un mensaje de error
     echo "Error: No se recibió la placa del automóvil.";
 }
-
 include("footer.php");
 ?>
 

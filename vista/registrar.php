@@ -1,4 +1,19 @@
-<?php include("header.php"); ?>
+<?php
+include("header.php");
+include("../modelo/db.php");
+
+$database = new Database();
+$db = $database->getConection();
+
+// Obtener colores
+$colores_query = $db->query("SELECT id, nombre FROM colores");
+$colores = $colores_query->fetchAll(PDO::FETCH_ASSOC);
+
+// Obtener modelos
+$modelos_query = $db->query("SELECT id, nombre FROM modelos");
+$modelos = $modelos_query->fetchAll(PDO::FETCH_ASSOC);
+?>
+
 <link rel="stylesheet" href="../estilos/registrar.css">
 
 <div class="container">
@@ -14,11 +29,19 @@
                         </div>
                         <div class="mb-3">
                             <label for="color" class="form-label">Color</label>
-                            <input type="text" class="form-control" id="color" name="color" placeholder="Ingrese el color" required>
+                            <select class="form-control" id="color" name="color" required>
+                                <?php foreach ($colores as $color): ?>
+                                    <option value="<?php echo $color['nombre']; ?>"><?php echo $color['nombre']; ?></option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label for="marca" class="form-label">Marca</label>
-                            <input type="text" class="form-control" id="marca" name="marca" placeholder="Ingrese la marca" required>
+                            <select class="form-control" id="marca" name="marca" required>
+                                <?php foreach ($modelos as $modelo): ?>
+                                    <option value="<?php echo $modelo['nombre']; ?>"><?php echo $modelo['nombre']; ?></option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
                         <input class="btn btn-primary" type="submit" value="Registrar">
                     </form>
@@ -32,4 +55,5 @@
 </div>
 
 <?php include("footer.php"); ?>
+
 
